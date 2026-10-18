@@ -1,18 +1,46 @@
 #ifndef MF_H
 #define MF_H
 
-#ifdef __cplusplus
-extern "C"
-{
+#ifdef MF_CONFIG
+#include "mf-config.h"
 #endif
+
+#include <string.h>
 
 #ifndef MF_MAX_CHILDREN
 #define MF_MAX_CHILDREN 4
 #endif
 
-  typedef struct _mWidgetClass mWidgetClass_t;
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+  /**
+   * @brief
+   *
+   * @param class: nullable
+   * @param key: nullable
+   * @param data: nullable
+   */
   typedef struct _mWidget mWidget_t;
+
+  /**
+   * @brief
+   *
+   * @param init_state: not nullable
+   * @param build: not nullable
+   * @param should_rebuild: not nullable
+   * @param dispose: not nullable
+   */
+  typedef struct _mWidgetClass mWidgetClass_t;
+
+  /**
+   * @brief Context is for the internal usage. User should not access the internal member.
+   *
+   */
   typedef struct _mContext mContext_t;
+
   typedef enum
   {
     m_should_not_rebuild,
@@ -21,7 +49,8 @@ extern "C"
 
   struct _mWidget
   {
-    const mWidgetClass_t *class; // can not be null
+    const mWidgetClass_t *class;
+    void *key;
     void *data;
   };
 
@@ -54,18 +83,41 @@ extern "C"
 
   // top level functions
 
-  void m_attach(mContext_t *context, const mWidget_t *widget,
-                void *new_delete_context,
-                mContext_t *(*new)(void *new_delete_context),
-                void (*delete)(void *new_delete_context, mContext_t *),
-                void (*on_error)(const char *reason));
+  /**
+   * @brief create a widget tree from the root widget and attach it to the root context
+   *
+   * @param context: not nullable
+   * @param widget: not nullable
+   * @param new_delete_context: nullable
+   * @param new: not nullable
+   * @param delete: not nullable
+   * @param on_error: not nullable
+   *
+   */
+  void m_attach(mContext_t *context /* not nullable */,
+                const mWidget_t *widget /* not nullable */,
+                void *new_delete_context /* nullable */,
+                mContext_t *(*new)(void *new_delete_context) /* not nullable */,
+                void (*delete)(void *new_delete_context, mContext_t *) /* not nullable */,
+                void (*on_error)(const char *reason) /* not nullable */);
 
+  /**
+   * @brief destroy the widget that attached to the root context
+   *
+   * @param context: not nullable
+   *
+   */
   void m_detach(mContext_t *context);
 
   // helper functions
 
   mShouldRebuildFlag_t m_always_rebuild(mContext_t *context);
 
+  /**
+   * @brief invoke framework to rebuild the sub widget tree that attached the context
+   *
+   * @param context: not nullable
+   */
   void m_set_state(mContext_t *context);
 
   void *m_get_state(const mContext_t *context);
