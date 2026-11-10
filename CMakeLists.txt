@@ -10,7 +10,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_LIST_DIR)
 endif()
 
 set(mf_src ${CMAKE_CURRENT_LIST_DIR}/mf.c)
-add_library(mf OBJECT ${mf_src})
+add_library(mf STATIC ${mf_src})
 target_include_directories(mf PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_LIST_DIR)
